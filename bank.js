@@ -29,7 +29,10 @@ const originalScans = {
   12: "libfile_93932f2738c081919c4165bb0fd7a65c",
   13: "libfile_c6b9a32f7ae08191911e7e2ef49b0583",
   14: "libfile_c94b5b650f088191987e40612fe5a8f1",
-  15: "libfile_519e53a2683481918b015c70a498100c"
+  15: "libfile_519e53a2683481918b015c70a498100c",
+  19: "libfile_7d71d65c22a48191bdfd62e55b67a8f1",
+  20: "libfile_71a458ba2b648191b54009ee15ff558f",
+  21: "libfile_12ff86020f80819190f7ed416c8cb491"
 };
 const series = ["000", "100", "010", "110", "001", "101", "011"];
 const questions = [
@@ -161,6 +164,7 @@ const f2 = (id, chapter, page, prompt, answers, explanation) => w2(
   answers.length === 1 ? answers[0] : `<ol>${answers.map(answer => `<li>${answer}</li>`).join("")}</ol>`,
   explanation, { type: "填空题" }
 );
+
 const fig = (file, alt) => `<img class="zoomable drawn" src="assets/${file}.svg" alt="${alt}">`;
 const pre = code => `<pre><code>${code.replaceAll("&", "&amp;").replaceAll("<", "&lt;")}</code></pre>`;
 questions.push(
@@ -389,4 +393,183 @@ module counter_top(input clock, input reset, input INK,
 endmodule`)}`,
     "1000 Hz 下 1000 拍等于 1 秒。两个模块共用输入时钟，计数器只在频率为 1 Hz 的使能脉冲到来时更新，其他时刻保持。",
     { scans: [15], note: "第 15 页未指定 HDL 方言，参考实现选用 Verilog，并增加高有效同步复位将计数器初始化为 0。" })
+);
+const c3 = choiceFor(3);
+const w3 = writtenFor(3);
+const bitRow = (value, width) => value.toString(2).padStart(width, "0").split("");
+const ls138Rows = [[0,"×","×","×","×",1,1,1,1,1,1,1,1],["×",1,"×","×","×",1,1,1,1,1,1,1,1],
+  ...Array.from({length:8}, (_, i) => [1,0,...bitRow(i,3),...Array.from({length:8}, (_, j) => Number(i!==j))])];
+const primeOnes = [2,3,5,7,11,13];
+const primeTruth = Array.from({length:16}, (_, i) => [i,...bitRow(i,4),Number(primeOnes.includes(i))]);
+const mod7Next = [1,2,3,4,5,6,0,0];
+questions.push(
+  c3(1, 2, 17, "下列对机器数反码的特点描述错误的是（　）。",
+    ["正数的反码同原码，负数的反码数值按位取反", "只有 1 个 0", "反码的反码为原码", "符号位参与运算，有进位时循环相加"],
+    "B", "以 4 位为例，+0 的反码为 0000，−0 的反码为 1111。负数由原码转成反码时只反转数值位。"),
+  c3(2, 3, 17, `逻辑函数 F = A${n("B")} + ${n("A")}B + AB 的最简式是（　）。`,
+    ["A+B", `${n("A")}+B`, `A+${n("B")}`, `${n("A")}+${n("B")}`], "A",
+    `A${n("B")}+AB=A，再用吸收律 A+${n("A")}B=A+B。`),
+  c3(3, 3, 17, "下列对逻辑函数表示方式不正确的描述是（　）。",
+    ["逻辑表达式，真值表，卡诺图，波形图", "逻辑表达式，真值表，卡诺图，状态图",
+      "逻辑表达式，真值表，卡诺图，逻辑图", "逻辑表达式，真值表，卡诺图，HDL 语言"], "B",
+    "状态图主要用于描述时序电路的状态和转移。这里考的是普通逻辑函数的表示方式。"),
+  c3(4, 3, 17, "对多变量逻辑异或运算的说法，下列正确的是（　）。",
+    ["若有奇数个变量为 1，则结果为 1", "若有偶数个变量为 0，则结果为 1",
+      "若有奇数个变量为 0，则结果为 0", "若有偶数个变量为 1，则结果为 1"], "A",
+    "异或等价于对所有输入求和后模 2。结果由输入中 1 的个数的奇偶性确定。"),
+  c3(5, 8, 17, "555 定时器构成的单稳态触发器，其输出一个正脉冲宽度 t<sub>w</sub> 由 RC 决定（　）。",
+    ["t<sub>w</sub>=0.7RC", "t<sub>w</sub>=1.1RC", "t<sub>w</sub>=0.8RC", "t<sub>w</sub>=1.4RC"],
+    "B", "电容从近似 0 充到 2/3 VCC 所需的时间为 RC·ln 3≈1.1RC。"),
+  c3(6, 6, 17, "下列触发器属于脉冲触发方式的是（　）。",
+    ["基本 RS 触发器", "钟控 RS 触发器", "边沿触发器", "主从触发器"], "D",
+    "按课程分类，主从触发器利用时钟脉冲的两个阶段分别控制主级接收和从级更新。"),
+  c3(7, 11, 18, "FPGA 是基于（　）存储工艺的可编程逻辑器件。",
+    ["查找表技术、SRAM", "查找表技术、EEPROM", "乘积项技术、SRAM", "乘积项技术、EEPROM"],
+    "A", "本题采用课程中的典型 SRAM 型 FPGA 模型，用查找表实现组合逻辑。"),
+  c3(8, 12, 18, "AHDL 语言程序设计中，定义电路 I/O 端口的是（　）。",
+    ["设计段", "子设计段", "逻辑段", "变量段"], "B", "输入端口和输出端口在 SUBDESIGN 的括号内声明。"),
+  w3("s1", "二、1", 3, 18,
+    `采用代数法化简逻辑函数最简式。<p class="formula">F = A${n("B")}CD + ABD + A${n("C")}D</p>`,
+    "F = AD",
+    `提取 AD 得 F=AD(${n("B")}C+B+${n("C")})。用 B+${n("B")}C=B+C，括号化为 B+C+${n("C")}=1。`),
+  w3("s2", "二、2", 3, 18,
+    `用卡诺图法化简逻辑函数最简式。<p class="formula">F = A${n("B")} + ${n("A")}C + BC + ${n("C")}D</p>`,
+    `F = A${n("B")} + C + D`,
+    `${table(["AB╲CD","00","01","11","10"], [["00",0,1,1,1],["01",0,1,1,1],["11",0,1,1,1],["10",1,1,1,1]])}
+    <ul><li>列 11 与 10 的 8 个 1 成组，得到 C。</li><li>列 01 与 11 的 8 个 1 成组，得到 D。</li><li>行 AB=10 的 4 个 1 成组，得到 A${n("B")}。</li></ul>`),
+  w3("d1", "三", 5, 19,
+    `设计三类课程考试合格评判器。文化课程 A 及格得 2 分，专业理论课程 B 及格得 3 分，专业技能课程 C 及格得 5 分，各科不及格均得 0 分。总分大于 6 分则合格，输出为 Y。
+    <ol><li>列出真值表。</li><li>写出逻辑函数表达式并化成最简式。</li><li>用 74LS138 与最少数量的二输入与非门画出逻辑电路。</li></ol>
+    <details><summary>查看卷面 74LS138 功能表</summary><div class="table-scroll">${table(["S₁",`${n("S₂")}+${n("S₃")}`,"A₂","A₁","A₀",...Array.from({length:8},(_,i)=>y(i))],ls138Rows)}</div></details>`,
+    `<p>A、B、C 各以 1 表示对应课程及格。</p>
+    ${table(["A","B","C","总分","Y"],Array.from({length:8},(_,i)=>{const [a,b,c]=bitRow(i,3).map(Number), score=2*a+3*b+5*c; return [a,b,c,score,Number(score>6)];}))}
+    <p>Y=Σm(3,5,7)=${n("A")}BC+A${n("B")}C+ABC=AC+BC=C(A+B)。</p>
+    <p>用 74LS138 的一条低有效输出与两只二输入与非门即可实现。</p>${fig("a19-assessor","74LS138 合格评判器接线图")}`,
+    `令 A₂=0、A₁=A、A₀=B，使能端 S₁=1、${n("S₂")}=${n("S₃")}=0。此时 ${y(0)} 等于 A+B。
+    将 C 和 ${y(0)} 接入第一只与非门，得 ${n("C(A+B)")}。第二只与非门两输入并接，将结果反相得到 Y。`,
+    { image: "assets/p19-ls138.svg" }),
+  w3("d2", "四", 5, 20,
+    `请完成四位二进制码中的质数判别器。输入变量从高位到低位为 A、B、C、D，输出为 Y。
+    <ol><li>列出真值表。</li><li>利用卡诺图进行两次降维。</li><li>用四选一数据选择器 74LS153 及少量门电路画出逻辑电路。</li></ol>
+    <details><summary>查看卷面 74LS153 功能表</summary>${table([n("E"),"D","A₁","A₀","Y"],[[1,"×","×","×",0],[0,"D₀",0,0,"D₀"],[0,"D₁",0,1,"D₁"],[0,"D₂",1,0,"D₂"],[0,"D₃",1,1,"D₃"]])}</details>`,
+    `<p>0–15 的质数是 2、3、5、7、11、13，所以 Y=Σm(2,3,5,7,11,13)。</p>
+    ${table(["序号","A","B","C","D","Y"],primeTruth)}
+    <p>令 A₁=A、A₀=B、${n("E")}=0，数据端依次接 C、D、CD、${n("C")}D，取正常输出 Y。</p>
+    ${fig("a20-prime","74LS153 四位质数判别器接线图")}`,
+    `<p>四变量卡诺图</p>
+    ${table(["AB╲CD","00","01","11","10"],[["00",0,0,1,1],["01",0,1,1,0],["11",0,1,0,0],["10",0,0,1,0]])}
+    <p>第一次降维：对每一组 AB、C，将 D=0、D=1 的格合并成常量或 D 的函数。</p>
+    ${table(["AB╲C","0","1"],[["00",0,1],["01","D","D"],["11","D",0],["10",0,"D"]])}
+    <p>第二次降维：按 C 选择上一张表的两列，得到仅含 C、D 的子函数。</p>
+    ${table(["A╲B",0,1],[[0,"C","D"],[1,"CD",`${n("C")}D`]])}
+    <p>用一个反相器和两个与门生成 CD、${n("C")}D。</p>`,
+    { image: "assets/p20-ls153.svg" }),
+  w3("d3", "五", 7, 21,
+    `用如图所示的集成计数器 74LS160 实现同步 65 进制计数器。
+    <details><summary>查看卷面 74LS160 功能表</summary>${table(["CP",n("RD"),n("LD"),"E<sub>T</sub>","E<sub>P</sub>","Q"],[["×",0,1,"×","×",0],["↑",1,0,"×","×","置数"],["↑",1,1,1,1,"计数"]])}
+    <p>CO=E<sub>T</sub>Q₃Q₀（合法 BCD 状态）。</p></details>`,
+    `<p>两片 74LS160 分作十位和个位，共用 CP。个位 E<sub>T</sub>、E<sub>P</sub> 接 1；十位 E<sub>P</sub> 接 1、E<sub>T</sub> 接个位 CO。两片的 ${n("RD")} 接 1，D₃…D₀ 全接 0。</p>
+    <p>检测十位为 0110 且个位为 0100（十进制 64），将两片 ${n("LD")} 同时拉低。计数循环为 00→01→…→64→00。</p>
+    ${fig("a21-mod65","两片 74LS160 同步 65 进制计数器接线图")}`,
+    `个位为 9 时 CO 有效，下一个共同上升沿个位回 0，十位加一。到 64 后，下一上升沿两片同时装入 0000。
+    ${n("RD")} 是异步清零端，同步回 00 由低有效 ${n("LD")} 完成。启动时可先异步清零以建立 00 初态。`,
+    { image: "assets/p21-ls160.svg" }),
+  w3("d4", "六", 7, 22,
+    `使用边沿 D 触发器设计一个同步 7 进制加计数器。
+    <ol><li>完成状态表及写出驱动方程。</li><li>写出状态方程。</li>
+    <li>分析电路的自启动能力。</li><li>画出逻辑电路图。</li></ol>`,
+    `<p>使用三个共用 CP 的 D 触发器，规定 111 下一拍进入 000。</p>
+    ${table(["现态 Q₂Q₁Q₀","次态 Q₂⁺Q₁⁺Q₀⁺","D₂D₁D₀"],mod7Next.map((v,i)=>[bitRow(i,3).join(""),bitRow(v,3).join(""),bitRow(v,3).join("")]))}
+    <p>D₂=Q₂${n("Q₁")}+${n("Q₂")}Q₁Q₀<br>D₁=${n("Q₁")}Q₀+${n("Q₂")}Q₁${n("Q₀")}<br>D₀=${n("Q₀")}${n("Q₂Q₁")}</p>
+    <p>状态方程 Qᵢ⁺=Dᵢ。唯一无效状态 111 经一次时钟进入 000，能自启动。</p>
+    ${fig("a22-mod7","三个边沿 D 触发器的同步模 7 加计数器逻辑电路")}`,
+    "写出 000 到 110 的递增循环，并补上 111→000。利用 D 触发器 Q⁺=D，逐列化简得到三个驱动方程。"),
+  w3("h1", "七、1", 12, 23,
+    `编写 3/8 译码器程序。输出 out[7..0] 高电平有效，输入 Decode[2..0] 为二进制代码，输入使能端 EN 高电平有效，文件名用 Decode 表示。`,
+    pre(`// Decode.v
+module decoder3to8 (
+    input  wire [2:0] Decode,
+    input  wire       EN,
+    output wire [7:0] out
+);
+    assign out = EN ? (8'b00000001 << Decode) : 8'b00000000;
+endmodule`),
+    "EN 为 1 时，选中序号对应的输出位为 1，其余为 0。EN 为 0 时，八位全为 0。",
+    { note: "参考代码使用 Verilog，文件名为 Decode.v。" }),
+  w3("h2", "七、2", 12, 23,
+    `编写程序实现方波输出。输入 inclk 为方波，输出 fb 的占空比为 50%，输出频率是输入频率的百分之一。`,
+    pre(`module divider100 (
+    input  wire inclk,
+    input  wire reset,
+    output reg  fb
+);
+    reg [5:0] phase;
+    always @(posedge inclk) begin
+        if (reset) begin
+            phase <= 6'd0;
+            fb <= 1'b0;
+        end else if (phase == 6'd49) begin
+            phase <= 6'd0;
+            fb <= ~fb;
+        end else begin
+            phase <= phase + 6'd1;
+        end
+    end
+endmodule`),
+    "计数 0–49，每 50 个输入周期翻转一次。输出高电平和低电平各持续 50 拍，所以一个完整周期共 100 拍。",
+    { note: "参考代码增加高有效同步复位，用来建立初态。" }),
+  w3("h3", "八", 13, 24,
+    `依据模块化、层次化设计方法，用 HDL 语言设计由 IN 控制的模 100 可逆计数器。
+    <ol><li>IN=0 时加计数，IN=1 时减计数。</li><li>外部 Clock 为 2 kHz 方波。</li>
+    <li>模 100 计数器只对频率 2 Hz、占空比 1% 的脉冲计数。</li><li>无需编写显示译码程序。</li></ol>`,
+    `<p>分频模块产生 2 Hz、1% 占空比脉冲，同时产生一个与脉冲上升沿对应的更新使能。计数模块每个脉冲更新一次。</p>
+    ${pre(`module pulse_divider (
+    input wire clk, reset,
+    output wire rise_enable,
+    output reg  pulse2hz
+);
+    reg [9:0] phase;
+    assign rise_enable = (phase == 10'd999);
+    always @(posedge clk) begin
+        if (reset) begin
+            phase <= 10'd0;
+            pulse2hz <= 1'b0;
+        end else if (rise_enable) begin
+            phase <= 10'd0;
+            pulse2hz <= 1'b1;
+        end else begin
+            phase <= phase + 10'd1;
+            if (phase == 10'd9)
+                pulse2hz <= 1'b0;
+        end
+    end
+endmodule
+
+module mod100_counter (
+    input wire clk, reset, enable, down,
+    output reg [6:0] count
+);
+    always @(posedge clk) begin
+        if (reset)
+            count <= 7'd0;
+        else if (enable) begin
+            if (down)
+                count <= (count == 7'd0) ? 7'd99 : count - 7'd1;
+            else
+                count <= (count == 7'd99) ? 7'd0 : count + 7'd1;
+        end
+    end
+endmodule
+
+module counter_top (
+    input wire Clock, reset, IN,
+    output wire pulse2hz,
+    output wire [6:0] count
+);
+    wire rise_enable;
+    pulse_divider div(Clock, reset, rise_enable, pulse2hz);
+    mod100_counter cnt(Clock, reset, rise_enable, IN, count);
+endmodule`)}`,
+    "2 kHz 下 1000 拍为 0.5 s，得到 2 Hz。每周期高 10 拍，得到 1% 占空比。两模块共用 Clock，计数器只在分频脉冲上升的那一拍更新。99 加一回 0，0 减一回 99。",
+    { note: "参考代码使用 Verilog。复位信号为高时同步初始化，计数输出为 0–99 的二进制值。" })
 );

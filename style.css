@@ -52,6 +52,8 @@ h2{font-size:1.08rem;line-height:1.4}
 .status.wrong{color:#a03236}
 .note{background:#fff7df;border-radius:8px;padding:10px 12px;color:#624412;margin-top:14px}
 .print-note{font-size:.84rem;color:#a32330;margin:.5em 0}
+.table-scroll{overflow-x:auto}
+.table-scroll table{min-width:560px}
 .actions,.pager{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
 .pager{justify-content:space-between}
 .formula,.option,.result{line-height:1.9}
