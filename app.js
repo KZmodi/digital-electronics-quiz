@@ -77,12 +77,14 @@ function render() {
 
 function renderQuestion(q, list, mode) {
   const multipleChoice = q.type === "选择题";
-  const autoGrade = multipleChoice && choices.includes(q.answer);
+  const multipleAnswers = multipleChoice && Array.isArray(q.answer);
+  const keys = multipleAnswers ? q.answer : [q.answer];
+  const autoGrade = multipleChoice && keys.length > 0 && keys.every(key => choices.includes(key));
   const index = list.indexOf(q);
   const adjacent = (offset, label) => list[index + offset]
     ? `<a class="button" href="${route(mode, q.chapter, list[index + offset].id)}">${label}</a>`
     : `<a class="button" href="${route(mode, q.chapter)}">返回题目列表</a>`;
-  const answer = autoGrade ? `${q.answer}. ${q.options[choices.indexOf(q.answer)]}` : q.answerText ?? q.answer;
+  const answer = autoGrade ? keys.map(key => `${key}. ${q.options[choices.indexOf(key)]}`).join("<br>") : q.answerText ?? q.answer;
   const scanPages = q.scans ?? (q.image ? [q.page] : []);
   const scanLinks = scanPages.map(page =>
     `<a target="_blank" rel="noopener" href="https://chatgpt.com/library?file_id=${originalScans[page]}&amp;account_id=personal">核对第 ${page} 页原图</a>`
@@ -90,10 +92,11 @@ function renderQuestion(q, list, mode) {
   app.innerHTML = `${backLink(route(mode, q.chapter), "返回本章")}
     <article class="card"><header class="question-head"><strong>${chapterName(q.chapter)}</strong><span class="meta">${q.type}</span></header>
     <div class="prompt"><span class="qnumber">${q.number}.（${q.page}页）</span>${q.prompt}</div>
-    ${q.image ? `<img class="zoomable" src="${q.image}" alt="第 ${q.page} 页卷面配图转绘">` : ""}
+    ${q.promptMedia ? `<img class="zoomable" src="${q.promptMedia}" alt="第 ${q.page} 页辅助配图">` : ""}
+    ${q.image ? `<img class="zoomable" src="${q.image}" alt="第 ${q.page} 页题目配图">` : ""}
     ${scanLinks ? `<p class="meta">${scanLinks}</p>` : ""}
     ${multipleChoice ? `<form id="choice-form"><div class="options">${q.options.map((option, i) =>
-      `<label class="option"><input required type="radio" name="option" value="${choices[i]}"><span>${choices[i]}. ${option}</span></label>`
+      `<label class="option"><input ${multipleAnswers ? 'type="checkbox"' : 'required type="radio"'} name="option" value="${choices[i]}"><span>${choices[i]}. ${option}</span></label>`
     ).join("")}</div><button type="${autoGrade ? "submit" : "button"}" ${autoGrade ? "" : 'id="reveal"'} class="button primary">${autoGrade ? "提交答案" : "查看解析"}</button></form>`
     : '<div class="actions"><button id="reveal" class="button primary" type="button">查看答案</button></div>'}
     <div class="result" id="result" hidden>
@@ -118,10 +121,10 @@ function renderQuestion(q, list, mode) {
     document.querySelector("#choice-form").addEventListener("submit", event => {
       event.preventDefault();
       const form = event.currentTarget;
-      const selected = new FormData(form).get("option");
-      if (!selected) return;
+      const selected = new FormData(form).getAll("option");
+      if (selected.length === 0) return;
       form.querySelectorAll("input, button").forEach(control => control.disabled = true);
-      report(selected === q.answer);
+      report(selected.length === keys.length && keys.every(key => selected.includes(key)));
     });
   } else {
     document.querySelector("#reveal").addEventListener("click", event => {
