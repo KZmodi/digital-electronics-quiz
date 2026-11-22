@@ -6,6 +6,7 @@ const storageKey = "digital-electronics.wrong.v1";
 const types = ["选择题", "填空题", "简答题"];
 const modes = { practice: "顺序刷题", review: "错题回顾" };
 const chapterName = number => `第 ${number} 章 ${chapters[number - 1]}`;
+const pageLabel = question => question.pageLabel ?? `${question.page}页`;
 const ordered = chapters.map((_, index) => types.flatMap(type => questions
   .filter(q => q.chapter === index + 1 && q.type === type))
   .map((q, i) => ({ ...q, number: i + 1 })));
@@ -65,7 +66,7 @@ function render() {
       const matches = list.filter(item => item.type === type);
       if (!matches.length) return "";
       return `<section class="group"><h2>${type}</h2><div class="rows">${matches.map(item =>
-        `<a class="row" href="${route(mode, chapter, item.id)}"><strong>第 ${item.number} 题</strong><span class="meta">（${item.page}页） ›</span></a>`
+        `<a class="row" href="${route(mode, chapter, item.id)}"><strong>第 ${item.number} 题</strong><span class="meta">（${pageLabel(item)}） ›</span></a>`
       ).join("")}</div></section>`;
     }).join("");
     app.innerHTML = `${backLink(route(mode), modes[mode])}<h1>${chapterName(chapter)}</h1>
@@ -85,15 +86,15 @@ function renderQuestion(q, list, mode) {
     ? `<a class="button" href="${route(mode, q.chapter, list[index + offset].id)}">${label}</a>`
     : `<a class="button" href="${route(mode, q.chapter)}">返回题目列表</a>`;
   const answer = autoGrade ? keys.map(key => `${key}. ${q.options[choices.indexOf(key)]}`).join("<br>") : q.answerText ?? q.answer;
-  const scanPages = q.scans ?? (q.image ? [q.page] : []);
+  const scanPages = q.scans ?? (q.image && originalScans[q.page] && !q.pageLabel ? [q.page] : []);
   const scanLinks = scanPages.map(page =>
     `<a target="_blank" rel="noopener" href="https://chatgpt.com/library?file_id=${originalScans[page]}&amp;account_id=personal">核对第 ${page} 页原图</a>`
   ).join("　");
   app.innerHTML = `${backLink(route(mode, q.chapter), "返回本章")}
     <article class="card"><header class="question-head"><strong>${chapterName(q.chapter)}</strong><span class="meta">${q.type}</span></header>
-    <div class="prompt"><span class="qnumber">${q.number}.（${q.page}页）</span>${q.prompt}</div>
-    ${q.promptMedia ? `<img class="zoomable" src="${q.promptMedia}" alt="第 ${q.page} 页辅助配图">` : ""}
-    ${q.image ? `<img class="zoomable" src="${q.image}" alt="第 ${q.page} 页题目配图">` : ""}
+    <div class="prompt"><span class="qnumber">${q.number}.（${pageLabel(q)}）</span>${q.prompt}</div>
+    ${q.promptMedia ? `<img class="zoomable" src="${q.promptMedia}" alt="${pageLabel(q)}辅助配图">` : ""}
+    ${q.image ? `<img class="zoomable" src="${q.image}" alt="${pageLabel(q)}题目配图">` : ""}
     ${scanLinks ? `<p class="meta">${scanLinks}</p>` : ""}
     ${multipleChoice ? `<form id="choice-form"><div class="options">${q.options.map((option, i) =>
       `<label class="option"><input ${multipleAnswers ? 'type="checkbox"' : 'required type="radio"'} name="option" value="${choices[i]}"><span>${choices[i]}. ${option}</span></label>`
